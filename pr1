@@ -1,37 +1,38 @@
 import pandas as pd
-import numpy as np
 import seaborn as sns
-from sklearn.preprocessing import LabelEncoder,MinMaxScaler
-df= sns.load_dataset('titanic')
-print("\n Original Datset:")
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+
+df = sns.load_dataset('titanic')
+print("Original Dataset:")
 print(df.head())
 
-df=df[['survived','pclass','sex','age','sibsp','parch','fare','embarked']]
+df = df[['survived', 'pclass', 'sex', 'age',
+         'sibsp', 'parch', 'fare', 'embarked']]
+
+print("Missing Values:")
 print(df.isnull().sum())
 
-df['age']=df['age'].fillna(df['age'].median())
-df['embarked']=df['embarked'].fillna(df['embarked'].mode())
+df['age'] = df['age'].fillna(df['age'].median())
+df['fare'] = df['fare'].fillna(df['fare'].median())
+df['embarked'] = df['embarked'].fillna(df['embarked'].mode()[0])
 
-le=LabelEncoder()
-df['sex']=le.fit_transform(df['sex'])
-df=pd.get_dummies(df, columns = ['embarked'], drop_first = True, dtype=int)
+le = LabelEncoder()
+df['sex'] = le.fit_transform(df['sex'])
 
-scaler=MinMaxScaler()
-num_cols = ['age','fare','sibsp','parch']
+df = pd.get_dummies(df, columns=['embarked'], drop_first=True, dtype=int)
+
+scaler = MinMaxScaler()
+num_cols = ['age', 'fare', 'sibsp', 'parch']
 df[num_cols] = scaler.fit_transform(df[num_cols])
 
-print("\n Clean and Model ready dataset:")
+print("\nClean and Model Ready Dataset:")
 print(df.head())
 
-print("\n Remaining Missing Values:")
+print("\nRemaining Missing Values:")
 print(df.isnull().sum())
 
-x = df.drop('survived',axis=1)
+X = df.drop('survived', axis=1)
 y = df['survived']
 
-print("\n Input Features:")
-print(x.head())
-
-print("\n Target Variable")
-print(y.head())
-
+print("\nFeature Shape:", X.shape)
+print("Target Shape:", y.shape)
