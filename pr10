@@ -1,0 +1,43 @@
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+lr = LogisticRegression()
+lr.fit(X_train, y_train)
+lr_pred = lr.predict(X_test)
+
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+rf_pred = rf.predict(X_test)
+
+lr_accuracy = accuracy_score(y_test, lr_pred)
+rf_accuracy = accuracy_score(y_test, rf_pred)
+
+print("Logistic Regression Accuracy:", lr_accuracy)
+print("Random Forest Accuracy:", rf_accuracy)
+
+models = ["Logistic Regression", "Random Forest"]
+accuracy = [lr_accuracy, rf_accuracy]
+
+plt.bar(models, accuracy)
+plt.ylabel("Accuracy")
+plt.xlabel("Models")
+plt.title("Baseline vs Ensemble Model")
+plt.ylim(0, 1)
+plt.show()
