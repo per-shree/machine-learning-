@@ -1,0 +1,47 @@
+import time
+from sklearn.datasets import load_digits
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+data = load_digits()
+X = data.data
+y = data.target
+print("Original shape:", X.shape)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+start = time.time()
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+original_time = time.time() - start
+original_accuracy = accuracy_score(y_test, model.predict(X_test))
+
+lda = LinearDiscriminantAnalysis(n_components=9)
+X_train_lda = lda.fit_transform(X_train, y_train)
+X_test_lda = lda.transform(X_test)
+
+start = time.time()
+model_lda = LogisticRegression(max_iter=1000)
+model_lda.fit(X_train_lda, y_train)
+lda_time = time.time() - start
+lda_accuracy = accuracy_score(y_test, model_lda.predict(X_test_lda))
+
+print("\nWithout LDA")
+print("Shape:", X_train.shape)
+print("Accuracy:", original_accuracy)
+print("Training time:", original_time)
+
+print("\nWith LDA")
+print("Reduced shape:", X_train_lda.shape)
+print("Variance explained:", lda.explained_variance_ratio_.sum())
+print("Accuracy:", lda_accuracy)
+print("Training time:", lda_time)
