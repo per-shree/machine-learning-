@@ -1,0 +1,35 @@
+import numpy as np
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+data = load_breast_cancer()
+X = data.data
+y = data.target
+print("Dataset shape:", X.shape)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+no_reg = LogisticRegression(C=np.inf, max_iter=5000)
+no_reg.fit(X_train, y_train)
+
+ridge = LogisticRegression(C=1.0, max_iter=5000)
+ridge.fit(X_train, y_train)
+
+print("\nWithout Regularization")
+print("Training Accuracy:", accuracy_score(y_train, no_reg.predict(X_train)))
+print("Testing Accuracy :", accuracy_score(y_test, no_reg.predict(X_test)))
+print("Max |coefficient|:", np.max(np.abs(no_reg.coef_)))
+
+print("\nRidge Regression")
+print("Training Accuracy:", accuracy_score(y_train, ridge.predict(X_train)))
+print("Testing Accuracy :", accuracy_score(y_test, ridge.predict(X_test)))
+print("Max |coefficient|:", np.max(np.abs(ridge.coef_)))
