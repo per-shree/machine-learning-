@@ -1,0 +1,44 @@
+import numpy as np
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+data = load_breast_cancer()
+X = data.data
+y = data.target
+print("Dataset shape:", X.shape)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+no_reg = LogisticRegression(C=np.inf, max_iter=5000)
+no_reg.fit(X_train, y_train)
+
+lasso = LogisticRegression(
+    l1_ratio=1,
+    solver="saga",
+    C=1.0,
+    max_iter=5000
+)
+lasso.fit(X_train, y_train)
+
+print("\nWithout Regularization")
+print("Training Accuracy:", accuracy_score(y_train, no_reg.predict(X_train)))
+print("Testing Accuracy :", accuracy_score(y_test, no_reg.predict(X_test)))
+
+print("\nLasso Regression")
+print("Training Accuracy:", accuracy_score(y_train, lasso.predict(X_train)))
+print("Testing Accuracy :", accuracy_score(y_test, lasso.predict(X_test)))
+print("Zero coefficients in Lasso:", np.sum(lasso.coef_[0] == 0))
+
+print("\nSelected features:")
+for name, coef in zip(data.feature_names, lasso.coef_[0]):
+    if coef != 0:
+        print(name, round(coef, 3))
