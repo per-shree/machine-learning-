@@ -1,0 +1,75 @@
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import matplotlib.pyplot as plt
+import numpy as np
+
+data = load_breast_cancer()
+X = data.data
+y = data.target
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+linear_svm = SVC(kernel='linear')
+linear_svm.fit(X_train, y_train)
+y_pred_linear = linear_svm.predict(X_test)
+
+rbf_svm = SVC(kernel='rbf')
+rbf_svm.fit(X_train, y_train)
+y_pred_rbf = rbf_svm.predict(X_test)
+
+linear_results = [
+    accuracy_score(y_test, y_pred_linear),
+    precision_score(y_test, y_pred_linear),
+    recall_score(y_test, y_pred_linear),
+    f1_score(y_test, y_pred_linear)
+]
+
+rbf_results = [
+    accuracy_score(y_test, y_pred_rbf),
+    precision_score(y_test, y_pred_rbf),
+    recall_score(y_test, y_pred_rbf),
+    f1_score(y_test, y_pred_rbf)
+]
+
+print("Linear SVM")
+print("Accuracy :", linear_results[0])
+print("Precision:", linear_results[1])
+print("Recall   :", linear_results[2])
+print("F1 Score :", linear_results[3])
+
+print("\nRBF SVM")
+print("Accuracy :", rbf_results[0])
+print("Precision:", rbf_results[1])
+print("Recall   :", rbf_results[2])
+print("F1 Score :", rbf_results[3])
+
+metrics = ['Accuracy', 'Precision', 'Recall', 'F1 Score']
+x = np.arange(len(metrics))
+width = 0.35
+
+plt.figure(figsize=(9, 5))
+plt.bar(x - width/2, linear_results, width, label='Linear SVM')
+plt.bar(x + width/2, rbf_results, width, label='RBF SVM')
+plt.xlabel('Evaluation Metrics')
+plt.ylabel('Score')
+plt.title('Linear SVM vs Nonlinear SVM (RBF)')
+plt.xticks(x, metrics)
+plt.ylim(0, 1.1)
+plt.legend()
+
+for i, value in enumerate(linear_results):
+    plt.text(i - width/2, value + 0.02, f'{value:.2f}', ha='center')
+for i, value in enumerate(rbf_results):
+    plt.text(i + width/2, value + 0.02, f'{value:.2f}', ha='center')
+
+plt.tight_layout()
+plt.show()
